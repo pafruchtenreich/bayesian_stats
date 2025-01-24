@@ -25,6 +25,9 @@ data <- data[, .SD, .SDcols = !("Regime")]
 # Adjust date format
 data$Date <- as.Date(paste0(data$Date, "-01"), format = "%Y-%m-%d")
 
+# Exclude 2019 and 2020 (Covid)
+data <- data[!(year(Date) %in% c(2019, 2020))]
+
 ##################################
 ##### DESCRIPTIVE STATISTICS #####
 ##################################
@@ -41,18 +44,25 @@ correlation_matrix(data)
 ##### MODELLING #####
 #####################
 
+source("src/predictions.R")
+
 # Remove seasonality and stationarize
 data <- seasonal_adjustment_and_stationarity(data, date_col = "Date")
 
 arrow::write_parquet(data, "data/processed_data.parquet")
 
+data <- data.table(arrow::read_parquet("data/processed_data.parquet"))
 
-test <- lbvar::lbvar(
-  data[, .SD, .SDcols = !("Date")],
-  p = 1,
+# Large Bayesian VAR
+model_lbvar <- lbvar::lbvar(
+  data[order(-Date)][-1:-3][, .SD, .SDcols = !("Date")],
+  p = 8,
   delta = 0,
   lambda = 0.05,
   xreg = NULL,
   ps = FALSE,
   tau = 10 * 0.05
 )
+
+predictions_lbvar <- data.table(predict(model_lbvar, h = 3))
+forecast_plot(data, predictions_lbvar, variable = "Real_Personal_Consumption")
