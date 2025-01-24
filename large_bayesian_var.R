@@ -54,9 +54,6 @@ differentiated_data <- seasonal_adjustment_and_stationarity(data, date_col = "Da
 data <- differentiated_data$data
 diffCount <- differentiated_data$diffCount
 
-# arrow::write_parquet(data, "data/processed_data.parquet")
-# data <- data.table(arrow::read_parquet("data/processed_data.parquet"))
-
 # Zoo data format
 zoo_data <- zoo(data[, .SD, .SDcols = !("Date")], order.by = data$Date)
 
