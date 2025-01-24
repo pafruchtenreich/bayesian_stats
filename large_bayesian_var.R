@@ -25,21 +25,27 @@ data <- data[, .SD, .SDcols = !("Regime")]
 # Adjust date format
 data$Date <- as.Date(paste0(data$Date, "-01"), format = "%Y-%m-%d")
 
-# Remove seasonality and stationarize
-data <- seasonal_adjustment_and_stationarity(data, date_col = "Date")
-
-arrow::write_parquet(data, "data/processed_data.parquet")
-
 ##################################
 ##### DESCRIPTIVE STATISTICS #####
 ##################################
 
 source("src/descriptive_statistics.R")
+
+# Mean, Std, Min, Max
+summary_statistics(data, latex = FALSE)
+
+# Correlation matrix
 correlation_matrix(data)
 
 #####################
 ##### MODELLING #####
 #####################
+
+# Remove seasonality and stationarize
+data <- seasonal_adjustment_and_stationarity(data, date_col = "Date")
+
+arrow::write_parquet(data, "data/processed_data.parquet")
+
 
 test <- lbvar::lbvar(
   data[, .SD, .SDcols = !("Date")],

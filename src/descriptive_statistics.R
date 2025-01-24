@@ -1,5 +1,28 @@
 library(ggplot2)
 library(reshape2)
+library(stargazer)
+
+summary_statistics <- function(data, latex = FALSE) {
+  data <- data[, .SD, .SDcols = sapply(data, is.numeric)]
+
+  # Compute summary statistics
+  summary_table <- data[, .(
+    Mean = sapply(.SD, mean, na.rm = TRUE),
+    Std_Dev = sapply(.SD, sd, na.rm = TRUE),
+    Min = sapply(.SD, min, na.rm = TRUE),
+    Max = sapply(.SD, max, na.rm = TRUE)
+  )]
+
+  # Add variable names
+  summary_table <- data.table(Variable = names(data), summary_table)
+
+  # Print the table
+  if (latex) {
+    stargazer(summary_table, summary = FALSE, type = "latex", title = "Summary Statistics", digits = 1)
+  } else {
+    stargazer(summary_table, summary = FALSE, type = "text", title = "Summary Statistics", digits = 1)
+  }
+}
 
 correlation_matrix <- function(data) {
   numeric_data <- data[, .SD, .SDcols = sapply(data, is.numeric)]
