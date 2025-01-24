@@ -1,8 +1,7 @@
 library(data.table)
-library(forecast)
+library(zoo)
 library(seasonal)
 library(tseries)
-library(lubridate)
 
 variables_name <- c(
   "Date", # "...1"
@@ -55,59 +54,64 @@ variables_name <- c(
 seasonal_adjustment_and_stationarity <- function(data, date_col = "Date") {
   vars <- setdiff(names(data), date_col)
 
+  # Track how many times each variable is differenced
+  diffCount <- setNames(rep(0, length(vars)), vars)
+
+  # Track base values needed to invert differencing later
+  baseVal <- vector("list", length = length(vars))
+  names(baseVal) <- vars
+
   for (v in vars) {
-    # Convert the column to a time-series object for seasonal adjustment
-    tsVar <- ts(
-      data[[v]],
-      frequency = 12,
-      start = c(
-        year(data[[date_col]][1]),
-        month(data[[date_col]][1])
-      )
-    )
+    # Build a zoo object for variable 'v'
+    z <- zoo(data[[v]], order.by = data[[date_col]])
+    z <- na.trim(z)
 
-    # Seasonal adjustment
-    fitSeas <- seas(tsVar)
-    seasadj_series <- final(fitSeas)
-    data[[v]] <- as.numeric(seasadj_series)
+    # Seasonal adjustment (Convert zoo->ts->seas->zoo)
+    start_year <- as.numeric(format(start(z), "%Y"))
+    start_month <- as.numeric(format(start(z), "%m"))
+    z_ts <- ts(coredata(z), frequency = 12, start = c(start_year, start_month))
 
-    # Check stationarity with ADF test on the seasonally adjusted data
-    adf_result <- adf.test(data[[v]])
+    fit <- seas(z_ts)
+    z_sa <- zoo(as.numeric(final(fit)), order.by = index(z))
 
-    # If non-stationary, difference once
-    if (adf_result$p.value > 0.05) {
-      message(sprintf(
-        "Variable %s is non-stationary (p-value = %.4f). Differencing once...",
-        v, adf_result$p.value
-      ))
+    # ADF test; difference if p>0.05
+    p_val_1 <- adf.test(coredata(z_sa))$p.value
+    if (p_val_1 > 0.05) {
+      message(sprintf("Variable '%s' p=%.4f > 0.05. Differencing once...", v, p_val_1))
+      z_sa <- diff(z_sa)
+      z_sa <- na.trim(z_sa)
+      diffCount[v] <- diffCount[v] + 1
 
-      data[[v]] <- c(NA, diff(data[[v]]))
-      data <- na.omit(data)
-
-      # Re-check stationarity after first difference
-      adf_result_2 <- adf.test(data[[v]])
-      if (adf_result_2$p.value > 0.05) {
-        message(sprintf(
-          "Variable %s is still non-stationary (p-value = %.4f). Differencing twice...",
-          v, adf_result_2$p.value
-        ))
-
-        data[[v]] <- c(NA, diff(data[[v]]))
-        data <- na.omit(data)
+      p_val_2 <- adf.test(coredata(z_sa))$p.value
+      if (p_val_2 > 0.05) {
+        message(sprintf("Variable '%s' still p=%.4f > 0.05. Differencing twice...", v, p_val_2))
+        z_sa <- diff(z_sa)
+        z_sa <- na.trim(z_sa)
+        diffCount[v] <- diffCount[v] + 1
       }
     }
+
+    # Merge back to 'data' in place
+    z_final <- merge(z, z_sa, all = TRUE)
+    data[[v]] <- as.numeric(z_final[, 2])
   }
 
-  # Final stationarity report
-  message("Final stationarity check (ADF p-values):")
+  # Final stationarity check
+  message("\nFinal stationarity check:")
   for (v in vars) {
-    if (v %in% names(data)) {
-      adf_res_final <- adf.test(data[[v]])
-      message(sprintf("  %s: %.4f", v, adf_res_final$p.value))
-    } else {
-      message(sprintf("  %s was removed (possibly due to NA omission).", v))
+    z_check <- zoo(data[[v]], order.by = data[[date_col]])
+    z_check <- na.omit(z_check)
+    if (length(z_check) < 2) {
+      message(sprintf("  %s => Not enough data. (differenced %d time[s])", v, diffCount[v]))
+      next
     }
+    p_val_final <- adf.test(coredata(z_check))$p.value
+    message(sprintf("  %s => p=%.4f, differenced %d time[s]", v, p_val_final, diffCount[v]))
   }
 
-  return(data)
+  # Return final data plus differencing counts
+  return(list(
+    data      = data,
+    diffCount = diffCount
+  ))
 }
