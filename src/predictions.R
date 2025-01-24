@@ -105,3 +105,27 @@ forecast_plot <- function(zoo_data, model_predictions, variable, diffCount, base
     true_values = tail(actual_zoo, 12)
   ))
 }
+
+process_predictions <- function(predictions, col_names) {
+  # Extract the specified quantile array
+  predictions <- predictions$quants["50%", , ]
+
+  # Convert the array to a data.table
+  dt <- as.data.table(predictions)
+
+  # Set the column names
+  setnames(dt, col_names)
+
+  # Return the processed data.table
+  return(dt)
+}
+
+
+compute_mse <- function(results) {
+  pred <- results$predictions
+  true <- results$true_values
+
+  errors <- true - pred
+  MSE <- round(mean(errors^2), digits = 3)
+  print(paste("MSE:", MSE))
+}

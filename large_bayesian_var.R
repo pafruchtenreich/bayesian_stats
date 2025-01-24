@@ -64,8 +64,10 @@ data <- data[order(Date)]
 # Exclude the last 12 observations
 training_data <- data[1:(.N - 12)]
 
-# Large Bayesian VAR
-model_lbvar <- lbvar::lbvar(
+######################
+# Large Bayesian VAR #
+######################
+model_large_bvar <- lbvar::lbvar(
   training_data[, .SD, .SDcols = !("Date")],
   p = 8,
   delta = 0,
@@ -75,12 +77,18 @@ model_lbvar <- lbvar::lbvar(
   tau = 10 * 0.05
 )
 
-predictions_lbvar <- data.table(predict(model_lbvar, h = 12))
-results <- forecast_plot(zoo_data, predictions_lbvar, variable = "Unemployment_Rate", diffCount = diffCount, base_values = base_val, horizon = 12)
+predictions_large_bvar <- data.table(predict(model_large_bvar, h = 12))
+results_large_bvar <- forecast_plot(zoo_data, predictions_large_bvar, variable = "Unemployment_Rate", diffCount = diffCount, base_values = base_val, horizon = 12)
+compute_mse(results_large_bvar)
 
-pred <- results$predictions
-true <- results$true_values
 
-errors <- true - pred
-MSE <- round(mean(errors^2) * 100, digits = 2)
-print(MSE)
+################
+# Bayesian VAR #
+################
+model_bvar <- BVAR::bvar(training_data[, .SD, .SDcols = c("Unemployment_Rate", "Industrial_Production_Index", "Real_Personal_Consumption")][3:length(training_data)], lags = 1)
+
+predictions_bvar <- predict(test, horizon = 12)
+predictions_bvar <- process_predictions(predictions_bvar, c("Unemployment_Rate", "Industrial_Production_Index", "Real_Personal_Consumption"))
+results_bvar <- forecast_plot(zoo_data, dt_50pct, variable = "Unemployment_Rate", diffCount = diffCount, base_values = base_val, horizon = 12)
+
+compute_mse(results_bvar)
