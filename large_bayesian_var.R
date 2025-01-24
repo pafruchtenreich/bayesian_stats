@@ -11,4 +11,13 @@ renv::restore() # Restore the renv environment from the lockfile
 ##### IMPORTING & PREPROCESSING DATA #####
 ##########################################
 
+source("src/data_preprocess.R")
 data <- data.table(read_csv("macrodata.csv"))
+names(data) <- variables_name
+
+##################################
+##### DESCRIPTIVE STATISTICS #####
+##################################
+
+source("src/descriptive_statistics.R")
+correlation_matrix(data)
