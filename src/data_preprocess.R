@@ -1,3 +1,9 @@
+library(data.table)
+library(forecast)
+library(seasonal)
+library(tseries)
+library(lubridate)
+
 variables_name <- c(
   "Date", # "...1"
   "Real_Personal_Income", # "RPI"
@@ -45,3 +51,63 @@ variables_name <- c(
   "Price_Earnings_Ratio", # "P/E"
   "Dividend_Yield" # "Dividend Yield"
 )
+
+seasonal_adjustment_and_stationarity <- function(data, date_col = "Date") {
+  vars <- setdiff(names(data), date_col)
+
+  for (v in vars) {
+    # Convert the column to a time-series object for seasonal adjustment
+    tsVar <- ts(
+      data[[v]],
+      frequency = 12,
+      start = c(
+        year(data[[date_col]][1]),
+        month(data[[date_col]][1])
+      )
+    )
+
+    # Seasonal adjustment
+    fitSeas <- seas(tsVar)
+    seasadj_series <- final(fitSeas)
+    data[[v]] <- as.numeric(seasadj_series)
+
+    # Check stationarity with ADF test on the seasonally adjusted data
+    adf_result <- adf.test(data[[v]])
+
+    # If non-stationary, difference once
+    if (adf_result$p.value > 0.05) {
+      message(sprintf(
+        "Variable %s is non-stationary (p-value = %.4f). Differencing once...",
+        v, adf_result$p.value
+      ))
+
+      data[[v]] <- c(NA, diff(data[[v]]))
+      data <- na.omit(data)
+
+      # Re-check stationarity after first difference
+      adf_result_2 <- adf.test(data[[v]])
+      if (adf_result_2$p.value > 0.05) {
+        message(sprintf(
+          "Variable %s is still non-stationary (p-value = %.4f). Differencing twice...",
+          v, adf_result_2$p.value
+        ))
+
+        data[[v]] <- c(NA, diff(data[[v]]))
+        data <- na.omit(data)
+      }
+    }
+  }
+
+  # Final stationarity report
+  message("Final stationarity check (ADF p-values):")
+  for (v in vars) {
+    if (v %in% names(data)) {
+      adf_res_final <- adf.test(data[[v]])
+      message(sprintf("  %s: %.4f", v, adf_res_final$p.value))
+    } else {
+      message(sprintf("  %s was removed (possibly due to NA omission).", v))
+    }
+  }
+
+  return(data)
+}
