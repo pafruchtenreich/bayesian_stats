@@ -105,20 +105,6 @@
       ],
       "Hash": "e7bdd9ee90e96921ca8a0f1972d66682"
     },
-    "RcppArmadillo": {
-      "Package": "RcppArmadillo",
-      "Version": "14.2.2-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "9da7c242d94a8419d045f6b3a64b9765"
-    },
     "SparseM": {
       "Package": "SparseM",
       "Version": "1.84-2",
@@ -144,63 +130,6 @@
         "zoo"
       ],
       "Hash": "1acd2b3db6e118dd161ee6cabedc4d4e"
-    },
-    "arrow": {
-      "Package": "arrow",
-      "Version": "18.1.0.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "R6",
-        "assertthat",
-        "bit64",
-        "cpp11",
-        "glue",
-        "methods",
-        "purrr",
-        "rlang",
-        "stats",
-        "tidyselect",
-        "utils",
-        "vctrs"
-      ],
-      "Hash": "0d1937a1096257bd7e4dddbf3e837d9f"
-    },
-    "assertthat": {
-      "Package": "assertthat",
-      "Version": "0.2.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "tools"
-      ],
-      "Hash": "50c838a310445e954bc13f26f26a6ecf"
-    },
-    "bit": {
-      "Package": "bit",
-      "Version": "4.5.0.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "f89f074e0e49bf1dbe3eba0a15a91476"
-    },
-    "bit64": {
-      "Package": "bit64",
-      "Version": "4.6.0-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "bit",
-        "graphics",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "4f572fbc586294afff277db583b9060f"
     },
     "cli": {
       "Package": "cli",
@@ -237,16 +166,6 @@
         "stats"
       ],
       "Hash": "d954cb1c57e8d8b756165d7ba18aa55a"
-    },
-    "cpp11": {
-      "Package": "cpp11",
-      "Version": "0.5.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R"
-      ],
-      "Hash": "9df43854f1c84685d095ed6270b52387"
     },
     "curl": {
       "Package": "curl",
@@ -287,54 +206,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "680887028577f3fa2a81e410ed0d6e42"
-    },
-    "forecast": {
-      "Package": "forecast",
-      "Version": "8.23.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "RcppArmadillo",
-        "colorspace",
-        "fracdiff",
-        "generics",
-        "ggplot2",
-        "graphics",
-        "lmtest",
-        "magrittr",
-        "nnet",
-        "parallel",
-        "stats",
-        "timeDate",
-        "tseries",
-        "urca",
-        "withr",
-        "zoo"
-      ],
-      "Hash": "7bcbf8c17ac848d9593bebc182b5195a"
-    },
-    "fracdiff": {
-      "Package": "fracdiff",
-      "Version": "1.5-3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "stats"
-      ],
-      "Hash": "a74597c42c5343764548aee4930e1ee1"
-    },
-    "generics": {
-      "Package": "generics",
-      "Version": "0.1.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "methods"
-      ],
-      "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -464,32 +335,6 @@
       ],
       "Hash": "b8552d117e1b808b09a832f589b79035"
     },
-    "lmtest": {
-      "Package": "lmtest",
-      "Version": "0.9-40",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "graphics",
-        "stats",
-        "zoo"
-      ],
-      "Hash": "c6fafa6cccb1e1dfe7f7d122efd6e6a7"
-    },
-    "lubridate": {
-      "Package": "lubridate",
-      "Version": "1.9.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "generics",
-        "methods",
-        "timechange"
-      ],
-      "Hash": "be38bc740fc51783a78edb5a157e4104"
-    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "2.0.3",
@@ -553,18 +398,6 @@
       ],
       "Hash": "ccbb8846be320b627e6aa2b4616a2ded"
     },
-    "nnet": {
-      "Package": "nnet",
-      "Version": "7.3-20",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "stats",
-        "utils"
-      ],
-      "Hash": "c955edf99ff24a32e96bd0a22645af60"
-    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.10.1",
@@ -601,21 +434,6 @@
         "Rcpp"
       ],
       "Hash": "6b8177fd19982f0020743fadbfdbd933"
-    },
-    "purrr": {
-      "Package": "purrr",
-      "Version": "1.0.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cli",
-        "lifecycle",
-        "magrittr",
-        "rlang",
-        "vctrs"
-      ],
-      "Hash": "1cba04a4e9414bdefc9dcaa99649a8dc"
     },
     "quadprog": {
       "Package": "quadprog",
@@ -726,6 +544,17 @@
       ],
       "Hash": "568c965a9ecd8f57489aee9c7a7ee9af"
     },
+    "stargazer": {
+      "Package": "stargazer",
+      "Version": "5.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "stats",
+        "utils"
+      ],
+      "Hash": "d313fa83180f3376229f98633813cd31"
+    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.8.4",
@@ -791,47 +620,6 @@
       ],
       "Hash": "a84e2cc86d07289b3b6f5069df7a004c"
     },
-    "tidyselect": {
-      "Package": "tidyselect",
-      "Version": "1.2.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cli",
-        "glue",
-        "lifecycle",
-        "rlang",
-        "vctrs",
-        "withr"
-      ],
-      "Hash": "829f27b9c4919c16b593794a6344d6c0"
-    },
-    "timeDate": {
-      "Package": "timeDate",
-      "Version": "4041.110",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "graphics",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "c5e48e8ac24d4472ddb122bcdeb011ad"
-    },
-    "timechange": {
-      "Package": "timechange",
-      "Version": "0.3.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cpp11"
-      ],
-      "Hash": "c5f3c201b931cd6474d17d8700ccb1c8"
-    },
     "tseries": {
       "Package": "tseries",
       "Version": "0.10-58",
@@ -848,20 +636,6 @@
         "zoo"
       ],
       "Hash": "f9269495a613f8e237f01691bf789ead"
-    },
-    "urca": {
-      "Package": "urca",
-      "Version": "1.3-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "graphics",
-        "methods",
-        "nlme",
-        "stats"
-      ],
-      "Hash": "b664d22e4483f8299ce03d3146971e56"
     },
     "utf8": {
       "Package": "utf8",
