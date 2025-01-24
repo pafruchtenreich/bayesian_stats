@@ -46,16 +46,26 @@ correlation_matrix(data)
 
 source("src/predictions.R")
 
+# Save base values of data for reconstruction
+base_val <- data[order(Date)][1:2]
+
 # Remove seasonality and stationarize
-data <- seasonal_adjustment_and_stationarity(data, date_col = "Date")
+differentiated_data <- seasonal_adjustment_and_stationarity(data, date_col = "Date")
+data <- differentiated_data$data
+diffCount <- differentiated_data$diffCount
 
-arrow::write_parquet(data, "data/processed_data.parquet")
+# arrow::write_parquet(data, "data/processed_data.parquet")
+# data <- data.table(arrow::read_parquet("data/processed_data.parquet"))
 
-data <- data.table(arrow::read_parquet("data/processed_data.parquet"))
+# Zoo data format
+zoo_data <- zoo(data[, .SD, .SDcols = !("Date")], order.by = data$Date)
+
+# Sort by Date and exclude the last 3 observations
+training_data <- data[order(Date)][-1:-12]
 
 # Large Bayesian VAR
 model_lbvar <- lbvar::lbvar(
-  data[order(-Date)][-1:-3][, .SD, .SDcols = !("Date")],
+  training_data[, .SD, .SDcols = !("Date")],
   p = 8,
   delta = 0,
   lambda = 0.05,
@@ -64,5 +74,5 @@ model_lbvar <- lbvar::lbvar(
   tau = 10 * 0.05
 )
 
-predictions_lbvar <- data.table(predict(model_lbvar, h = 3))
-forecast_plot(data, predictions_lbvar, variable = "Real_Personal_Consumption")
+predictions_lbvar <- data.table(predict(model_lbvar, h = 12))
+forecast_plot(zoo_data, predictions_lbvar, variable = "Unemployment_Rate", diffCount = diffCount, base_values = base_val, horizon = 12)
