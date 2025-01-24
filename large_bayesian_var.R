@@ -64,6 +64,15 @@ data <- data[order(Date)]
 # Exclude the last 12 observations
 training_data <- data[1:(.N - 12)]
 
+first_model_variables <- c("Unemployment_Rate", "Effective_Federal_Funds_Rate", "CPI_All_Items")
+second_model_variables <- c(first_model_variables, "PPI_Intermediate_Materials", "Total_Reserves", "M2_Money_Stock")
+third_model_variables <- c(
+  second_model_variables, "Real_Personal_Income", "Real_Personal_Consumption", "Industrial_Production_Index",
+  "Housing_Starts", "PPI_Finished_Goods", "M1_Money_Stock", "SP500_Index", "Ten_Year_Treasury_Rate", "USD_Swiss_Exchange_Rate",
+  "USD_Canada_Exchange_Rate", "USD_UK_Exchange_Rate"
+)
+all_variables_model <- setdiff(names(training_data), "Date")
+
 ######################
 # Large Bayesian VAR #
 ######################
@@ -85,10 +94,12 @@ compute_mse(results_large_bvar)
 ################
 # Bayesian VAR #
 ################
-model_bvar <- BVAR::bvar(training_data[, .SD, .SDcols = c("Unemployment_Rate", "Industrial_Production_Index", "Real_Personal_Consumption")][3:length(training_data)], lags = 1)
+
+# First model:
+model_bvar <- BVAR::bvar(training_data[, .SD, .SDcols = first_model_variables][3:length(training_data)], lags = 1)
 
 predictions_bvar <- predict(test, horizon = 12)
-predictions_bvar <- process_predictions(predictions_bvar, c("Unemployment_Rate", "Industrial_Production_Index", "Real_Personal_Consumption"))
+predictions_bvar <- process_predictions(predictions_bvar, first_model_variables)
 results_bvar <- forecast_plot(zoo_data, dt_50pct, variable = "Unemployment_Rate", diffCount = diffCount, base_values = base_val, horizon = 12)
 
 compute_mse(results_bvar)
