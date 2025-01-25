@@ -1,7 +1,16 @@
-# Bayesian statistics
+# Bayesian Statistics 🚀
 
-This project is part of the lecture **Bayesian Statistics** given at ENSAE Paris during 2024/2025. We aim to explore the techniques developed in **Banbura, M., Giannone, D. and L. Reichlin (2010). Large Bayesian Vector Autoregressions, Journal of Applied econometrics, Vol. 25, 71 – 92** (you can find this article [here](https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.1137) and downloadable [here](https://papers.ssrn.com/sol3/Delivery.cfm?abstractid=1292332)). Especially, we apply both a BVAR and a large BVAR on a new macroeconomic dataset with many columns and we assess their performances when it comes to forecasting. 
+This repository supports the **Bayesian Statistics** lecture at ENSAE Paris (2024–2025). We build upon the techniques introduced by [Banbura, Giannone & Reichlin (2010)](https://onlinelibrary.wiley.com/doi/abs/10.1002/jae.1137) ([downloadable PDF](https://papers.ssrn.com/sol3/Delivery.cfm?abstractid=1292332)), focusing on **Bayesian Vector Autoregressions (BVARs)** and their high-dimensional extension, **Large Bayesian Vector Autoregressions (LBVARs)**.
 
-In practice, it has been seen that BVARs overfit when the number of features exceeds 10. The need for larger models led to the creation of LBVARs where, by controlling the shrinkage in the prior, one can fit a BVAR on larger datasets without overfitting.
+## Motivation 
+- **BVAR** models tend to overfit when the number of variables exceeds 10.
+- **LBVAR** addresses this issue by incorporating adaptive shrinkage, enabling reliable estimation even in large-dimensional settings.
 
-In this project, we compare the forecasting performance of BVAR and LBVAR when the number of features increase.
+## What This Project Offers
+- **Implementation:** We provide code to estimate both BVAR and LBVAR models.
+- **Macroeconomic Dataset:** We apply these models to an extensive macroeconomic dataset.
+- **Performance Comparison:** We evaluate how each model’s forecast accuracy evolves as the number of variables grows.
+
+## Key Takeaways
+1. **Scalability:** LBVAR can handle larger datasets without succumbing to overfitting.
+2. **Forecasting Power:** LBVAR generally delivers more robust predictions, especially in high-dimensional scenarios.
