@@ -36,7 +36,7 @@ data <- data[!(year(Date) %in% c(2019, 2020))]
 source("src/descriptive_statistics.R")
 
 # Mean, Std, Min, Max
-summary_statistics(data, latex = FALSE)
+summary_statistics(data, latex = TRUE)
 
 # Correlation matrix
 correlation_matrix(data)
@@ -109,6 +109,11 @@ mse_bvar <- evaluate_bvar_models(
   diffCount,
   base_val
 )
+
+mse_bvar$first_model_variables$variables <- first_model_variables
+mse_bvar$second_model_variables$variables <- second_model_variables
+mse_bvar$third_model_variables$variables <- third_model_variables
+mse_bvar$all_variables_model$variables <- setdiff(names(training_data), "Date")
 
 ######################
 # Large Bayesian VAR #
