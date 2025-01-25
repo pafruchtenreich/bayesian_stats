@@ -1,4 +1,6 @@
 library(zoo)
+library(BVAR)
+library(data.table)
 
 forecast_plot <- function(zoo_data, model_predictions, variable, diffCount, base_values, horizon = 12) {
   actual_zoo <- zoo(zoo_data[, variable], order.by = index(zoo_data))
@@ -120,6 +122,22 @@ process_predictions <- function(predictions, col_names) {
   return(dt)
 }
 
+fit_bvar_model <- function(data, vars, lags) {
+  BVAR::bvar(
+    data[, .SD, .SDcols = vars][3:.N],
+    lags = lags
+  )
+}
+
+compute_bic_from_bvar <- function(model) {
+  loglik_value <- logLik(model)
+  k <- model$meta$K
+  n <- model$meta$M * 251
+
+  bic_value <- as.numeric(-2 * loglik_value + k * log(n))
+  return(bic_value)
+}
+
 
 compute_mse <- function(results) {
   pred <- results$predictions
@@ -127,5 +145,137 @@ compute_mse <- function(results) {
 
   errors <- true - pred
   MSE <- round(mean(errors^2), digits = 3)
-  print(paste("MSE:", MSE))
+  return(MSE)
+}
+
+
+evaluate_bvar_models <- function(all_model_vars,
+                                 training_data,
+                                 zoo_data,
+                                 lag_candidates,
+                                 diffCount,
+                                 base_val) {
+  # A list to store the final results
+  mse_results <- list()
+
+  for (model_name in names(all_model_vars)) {
+    cat("\n----------\nProcessing:", model_name, "\n")
+
+    # Extract the variables for this model
+    vars <- all_model_vars[[model_name]]
+
+    best_bic <- Inf
+    best_lags <- NA
+
+    # Search over possible lags by bic
+    for (p in lag_candidates) {
+      # Fit BVAR model with p lags
+      temp_mod <- try(fit_bvar_model(training_data, vars, p), silent = TRUE)
+
+      # Check if the model fit encountered an error:
+      if (inherits(temp_mod, "try-error")) {
+        cat("   Model failed at lag", p, " --> Skipping further lags for", model_name, "\n")
+        break
+      }
+
+      # Compute the bic
+      current_bic <- compute_bic_from_bvar(temp_mod)
+
+      # Update best bic and best lag if this is the lowest bic so far
+      if (!is.na(current_bic) && (current_bic < best_bic)) {
+        best_bic <- current_bic
+        best_lags <- p
+      }
+    }
+
+    cat("   Best lag order for", model_name, "=", best_lags, "with bic =", best_bic, "\n")
+
+    # Fit the final model at the best lag order
+    final_model <- fit_bvar_model(training_data, vars, best_lags)
+
+    # Predict out-of-sample (horizon = 12 in your example)
+    predictions <- predict(final_model, horizon = 12)
+
+    # Process the predictions
+    predictions_proc <- process_predictions(predictions, vars)
+
+    # Generate forecast plots and get forecasted series
+    forecast_obj <- forecast_plot(
+      zoo_data,
+      predictions_proc,
+      variable    = "Unemployment_Rate",
+      diffCount   = diffCount,
+      base_values = base_val,
+      horizon     = 12
+    )
+
+    # Compute MSE
+    mse_val <- compute_mse(forecast_obj)
+
+    cat("   MSE for", model_name, "with", best_lags, "lags =", mse_val, "\n")
+
+    # Store the results
+    mse_results[[model_name]] <- list(
+      best_lags = best_lags,
+      bic = best_bic,
+      MSE = mse_val
+    )
+  }
+
+  # Print the final results
+  print(mse_results)
+
+  # Return them for further processing
+  return(mse_results)
+}
+
+evaluate_large_bvar_models <- function(training_data, model_parameters, zoo_data, diffCount, base_val, horizon = 12) {
+  results_list <- list()
+
+  for (model_name in names(model_parameters)) {
+    # Extract model parameters
+    model_info <- model_parameters[[model_name]]
+    variables <- model_info$variables
+    best_lags <- model_info$best_lags
+
+    lambda <- lbvar::fitLambda(training_data[, .SD, .SDcols = !("Date")][3:.N],
+      variables = variables,
+      lambdaseq = seq(0, 1, 0.005),
+      p = best_lags, p.reduced = best_lags
+    )
+
+    # Fit the BVAR model
+    model_large_bvar <- lbvar::lbvar(
+      training_data[, .SD, .SDcols = variables],
+      p = best_lags,
+      delta = 0,
+      lambda = lambda
+    )
+
+    # Generate predictions
+    predictions_large_bvar <- data.table(predict(model_large_bvar, h = horizon))
+
+    # Evaluate results
+    results_large_bvar <- forecast_plot(
+      zoo_data,
+      predictions_large_bvar,
+      variable = "Unemployment_Rate",
+      diffCount = diffCount,
+      base_values = base_val,
+      horizon = horizon
+    )
+    mse <- compute_mse(results_large_bvar)
+
+    # Store the result
+    results_list[[model_name]] <- list(
+      predictions = predictions_large_bvar,
+      results = results_large_bvar,
+      mse = mse
+    )
+
+    # Print progress
+    print(paste("Completed model:", model_name, "with MSE:", mse))
+  }
+
+  return(results_list)
 }
