@@ -238,12 +238,19 @@ evaluate_large_bvar_models <- function(training_data, model_parameters, zoo_data
     variables <- model_info$variables
     best_lags <- model_info$best_lags
 
-    # lambda <- lbvar::fitLambda(training_data[, .SD, .SDcols = !("Date")][3:.N],
-    #   variables = variables,
-    #   lambdaseq = seq(0, 1, 0.005),
-    #   p = best_lags, p.reduced = best_lags
-    # )
-    # cat("Lambda", model_name, "=", lambda * 2)
+    if (model_name != "first_model_variables") {
+      lambda <- lbvar::fitLambda(
+        training_data[, .SD, .SDcols = variables][3:.N],
+        variables = c("Unemployment_Rate", "Effective_Federal_Funds_Rate", "CPI_All_Items"),
+        lambdaseq = seq(0, 1, 0.005),
+        p = best_lags,
+        p.reduced = best_lags
+      ) / 2
+    } else {
+      lambda <- 1 / 3
+    }
+
+    cat("Lambda", model_name, "=", lambda)
 
     # Fit the BVAR model
     model_large_bvar <- lbvar::lbvar(
