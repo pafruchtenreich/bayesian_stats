@@ -80,7 +80,7 @@ forecast_plot <- function(zoo_data, model_predictions, variable, diffCount, base
   }
 
   plot(
-    actual_zoo,
+    tail(actual_zoo, 12 * 6),
     type = "l",
     col = "#1f77b4",
     lwd = 2,
@@ -238,18 +238,19 @@ evaluate_large_bvar_models <- function(training_data, model_parameters, zoo_data
     variables <- model_info$variables
     best_lags <- model_info$best_lags
 
-    lambda <- lbvar::fitLambda(training_data[, .SD, .SDcols = !("Date")][3:.N],
-      variables = variables,
-      lambdaseq = seq(0, 1, 0.005),
-      p = best_lags, p.reduced = best_lags
-    )
+    # lambda <- lbvar::fitLambda(training_data[, .SD, .SDcols = !("Date")][3:.N],
+    #   variables = variables,
+    #   lambdaseq = seq(0, 1, 0.005),
+    #   p = best_lags, p.reduced = best_lags
+    # )
+    # cat("Lambda", model_name, "=", lambda * 2)
 
     # Fit the BVAR model
     model_large_bvar <- lbvar::lbvar(
       training_data[, .SD, .SDcols = variables],
       p = best_lags,
       delta = 0,
-      lambda = lambda
+      lambda = 1 / length(variables)
     )
 
     # Generate predictions
