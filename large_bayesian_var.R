@@ -121,5 +121,3 @@ mse_large_bvar <- evaluate_large_bvar_models(
   base_val = base_val,
   horizon = 12
 )
-
-source("src/predictions.R")
